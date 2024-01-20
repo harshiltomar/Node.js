@@ -1,42 +1,81 @@
-const http = require("http");
+const express = require("express");
+const users = require("./MOCK_DATA.json");
 const fs = require("fs");
-const url = require("url");
 
-const myServer = http.createServer((req, res) => {
-  if (req.url === "/favicon.io") return res.end();
+const app = express();
+const PORT = 8000;
 
-  const log = `${Date.now()}: ${req.method} ${req.url} New Request Received\n`;
+// Middleware- Plugin
+app.use(express.urlencoded({ extended: false }));
 
-  const myUrl = url.parse(req.url, true);
-  console.log(myUrl);
-
-  fs.appendFile("log.txt", log, (err, data) => {
-    switch (myUrl.pathname) {
-      case "/":
-        if (req.method === "GET") res.end("HomePage");
-        break;
-      case "/about":
-        const username = myUrl.query.myname;
-        res.end(`Hi, ${username}`);
-        break;
-      case "/contact":
-        res.end("Contact page hai vro");
-        break;
-      case "/signup":
-        if (req.method === "GET") res.end("THis is a Signup Form");
-        else if (req.method === "POST") {
-          //Send info to DB
-          res.end("Success");
-        }
-      default:
-        res.end("Sexy bhai !!");
+app.use((req, res, next) => {
+  fs.appendFile(
+    "log.txt",
+    `\n${Date.now()}:${req.ip} ${req.method}: ${req.path}\n`,
+    (err, data) => {
+      next();
     }
-    if (err) {
-      console.error("Error writing to log file:", err);
+  );
+});
+
+// Routes Define
+app.get("/users", (req, res) => {
+  const html = `
+    <ul>${users.map((user) => `<li>${user.first_name}</li>`).join("")}</ul>`;
+  res.send(html);
+});
+
+// REST API
+app.get("/api/users", (req, res) => {
+  return res.json(users);
+});
+
+app
+  .route("/api/users/:id")
+  .get((req, res) => {
+    const id = Number(req.params.id);
+    const user = users.find((user) => user.id === id);
+    return res.json(user);
+  })
+  .patch((req, res) => {
+    // TODO: Edit a User with id
+    const id = Number(req.params.id);
+    const userIndex = users.findIndex((user) => user.id === id);
+
+    if (userIndex !== -1) {
+      users[userIndex] = { ...users[userIndex], ...req.body };
+
+      fs.writeFile("./MOCK_DATA.jsn", JSON.stringify(users), (err, data) => {
+        return res.json({
+          status: "successfully patched",
+          updateUser: user[userIndex],
+        });
+      });
+    }
+  })
+  .delete((req, res) => {
+    // TODO: Delete a User with id
+    const id = Number(req.params.id);
+    const userIndex = users.findIndex((user) => user.id === id);
+
+    if (userIndex !== -1) {
+      const deleteUser = users.splice(userIndex, 1)[0];
+
+      fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
+        return res.json({ status: "successfull delete", deleteUser });
+      });
     }
   });
 
-  console.log("New Request Received");
+app.post("/api/users", (req, res) => {
+  // TODO: Create a new User
+
+  const body = req.body;
+  console.log("Body: ", body);
+  users.push({ ...body, id: users.length + 1 });
+  fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
+    return res.json({ status: "success", id: users.length + 1 });
+  });
 });
 
-myServer.listen(8000, () => console.log("Server Started"));
+app.listen(PORT, () => console.log(`Server Started at PORT: ${PORT}`));
