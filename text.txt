@@ -1,3 +1,0 @@
-Schema - Define the str
-    Schema - Model
-    Using Model, we do CRUD operations

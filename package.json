@@ -1,16 +1,21 @@
 {
   "name": "node",
   "version": "1.0.0",
-  "description": "",
+  "description": "- Design a URl shortner service that takes in a valid URL and return a shortened URL, redirecting the users to the prev provided URL\r - Also, keep track of total visits/clicks on the URL",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ejs": "^3.1.9",
     "express": "^4.18.2",
-    "mongoose": "^8.1.0"
+    "mongoose": "^8.1.0",
+    "nanoid": "^5.0.4",
+    "nodemon": "^3.0.3",
+    "short-unique-id": "^5.0.3",
+    "shortid": "^2.2.16"
   }
 }
