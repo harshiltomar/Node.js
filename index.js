@@ -1,58 +1,25 @@
-const express = require("express");
 const path = require("path");
-const cookieParser = require("cookie-parser");
-const { connectToMongoDB } = require("./connect");
-const {
-  restrictToLoggedinUserOnly,
-  checkAuth,
-} = require("./middlewares/auth.middleware");
+const express = require("express");
+const mongoose = require("mongoose");
 
-//Route imports
-const urlRoute = require("./routes/url.routes");
-const staticRoute = require("./routes/staticRouter.routes");
-const userRoute = require("./routes/user.routes");
-const URL = require("./models/url.models");
-const ejs = require("ejs");
+const userRoute = require("./routes/user.route");
 
 const app = express();
-const PORT = 8001;
+const PORT = 8000;
 
-connectToMongoDB("mongodb://localhost:27017/short-url").then(() =>
-  console.log("MongoDB Connected")
-);
+mongoose
+  .connect("mongodb://localhost:27017/blogify")
+  .then((e) => console.log("MongoDB Connected"));
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
-app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 
-app.use("/url", restrictToLoggedinUserOnly, urlRoute);
-app.use("/", staticRoute);
-app.use("/user", checkAuth, userRoute);
-
-app.get("/url/:shortId", async (req, res) => {
-  const shortId = req.params.shortId;
-
-  const entry = await URL.findOneAndUpdate(
-    {
-      shortId,
-    },
-    {
-      $push: {
-        visitHistory: {
-          timestamp: Date.now(),
-        },
-      },
-    }
-  );
-
-  if (entry && entry.redirectURL) {
-    res.redirect(entry.redirectURL);
-  } else {
-    res.status(404).send("Not Found");
-  }
+app.get("/", (req, res) => {
+  res.render("home");
 });
 
-app.listen(PORT, () => console.log(`Server Started at PORT: ${PORT}`));
+app.use("/user", userRoute);
+
+app.listen(PORT, () => console.log(`Server Started at PORT:${PORT}`));
