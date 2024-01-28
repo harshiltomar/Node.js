@@ -6,7 +6,7 @@
   </head>
   <body>
     <%= include('./partials/nav') %>
-    <div class="container mt-3">
+    <div class="row row-cols-4">
       <% blogs.forEach(blog => { %>
       <div class="card" style="width: 18rem">
         <img class="<%= blog.coverImageURL %>" src="..." alt="Card image cap" />
