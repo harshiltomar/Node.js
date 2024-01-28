@@ -16,8 +16,9 @@
       <li class="nav-item active">
         <a class="nav-link" href="#">Home</a>
       </li>
+      <% if (locals.user) { %>
       <li class="nav-item">
-        <a class="nav-link" href="#">Add Blog</a>
+        <a class="nav-link" href="/blo/add-new">Add Blog</a>
       </li>
       <li class="nav-item dropdown">
         <a
@@ -31,9 +32,23 @@
           Harshil Tomar
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-          <a class="dropdown-item" href="#">Logout</a>
+          <a class="dropdown-item" href="/user.logout">Logout</a>
         </div>
       </li>
+      <% } else {
+      <li class="nav-item">
+        <a class="nav-link" href="/user/signup">Create Account</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/user/signin">Signin</a>
+      </li>
+      }%>
     </ul>
   </div>
 </nav>
+
+<% if (condition) { %>
+<div class="container mt-4">
+  <div class="alert alert-danger" role="alert"><%= locals.error %></div>
+</div>
+<% } %>
